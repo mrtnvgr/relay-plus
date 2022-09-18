@@ -78,7 +78,4 @@ class TelegramListener(threading.Thread):
 
             # Commands
             if message["text"].startswith("/help"):
-                self.master.tg.sendMessage("Help message todo\nupdate - pull updates")
-
-            elif message["text"].startswith("/update"):
-                util.update()
+                self.master.tg.sendMessage("Help message placeholder")
