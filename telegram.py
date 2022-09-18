@@ -24,7 +24,8 @@ class TelegramAPI:
         if "media" != []:
 
             group = {
-                "media": json.dumps(media, ensure_ascii=False)
+                "media": json.dumps(media, ensure_ascii=False),
+                "disable_notification": True
             }
 
             return self.method("sendMediaGroup", group)
