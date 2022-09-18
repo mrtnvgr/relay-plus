@@ -79,9 +79,9 @@ class VkListener(threading.Thread):
 
                 if whitelist and not blacklist:
                     self.preparePost(post)
-                    
-            else:
-                pass # self.master.config.addHistory(post["id"])
+                 
+                # Add post to history
+                self.master.config.addHistory(post["id"])
 
     def preparePost(self, post):
         self.master.log.info(f"VK post: {post['id']}")
@@ -89,7 +89,7 @@ class VkListener(threading.Thread):
         # Parse attachments
         if "attachments" in post:
             
-            # Parse large doc attachments
+            # Parse doc attachments
             for attachment in post["attachments"][:]:
 
                 # Check if attachment type is document
@@ -97,18 +97,15 @@ class VkListener(threading.Thread):
 
                     doc = attachment["doc"]
 
-                    # Pick only large documents
-                    if doc["size"]>=50000000:
-                        
-                        # Get document data
-                        url = doc["url"]
-                        title = doc["title"]
-                        
-                        # Add link to post text
-                        post["text"] += f"\n\n<a href='{url}'>{title}</a>"
+                    # Get document data
+                    url = doc["url"]
+                    title = doc["title"]
+                    
+                    # Add link to post text
+                    post["text"] += f"\n\n<a href='{url}'>{title}</a>"
 
-                        # Remove document from attachments
-                        post["attachments"].remove(attachment)
+                    # Remove document from attachments
+                    post["attachments"].remove(attachment)
 
             # Iterate through attachments
             for attachment in post["attachments"]:
@@ -129,20 +126,6 @@ class VkListener(threading.Thread):
 
                     # Set caption key
                     payload["caption"] = post["text"]
-
-                # Upload documents
-                elif attachment["type"] == "doc":
-                    
-                    doc = attachment["doc"]
-                    
-                    # Check file size
-                    if doc["size"]<50000000:
-
-                        # Set document key
-                        payload["document"] = doc["url"]
-
-                        # Change send method type
-                        method = "sendDocument"
 
                 # Upload links
                 elif attachment["type"] == "link":
@@ -202,7 +185,7 @@ class VkListener(threading.Thread):
 
                 # Send telegram message
                 response = self.master.tg.method(method, payload)
-                if not response["ok"]:
+                if "error_code" in response:
                     self.master.log.error(f'{method}: {response["description"]}')
 
         else:

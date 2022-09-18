@@ -21,7 +21,13 @@ class Main:
         self.log.info("Starting vk thread...")
         self.vk_thread = vk.VkListener(self)
         self.vk_thread.start()
+
+        self.log.info("Starting telegram thread...")
+        self.tg_thread = telegram.TelegramListener(self)
+        self.tg_thread.start()
+
         self.vk_thread.join()
+        self.tg_thread.join()
 
 def main():
     Main()
