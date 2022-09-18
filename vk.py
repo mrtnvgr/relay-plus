@@ -55,7 +55,6 @@ class VkListener(threading.Thread):
             
             # Check if post id in history
             history = self.master.config.config["vk"]["history"]
-
             if post["id"] not in history:
 
                 # Check post type
@@ -78,10 +77,11 @@ class VkListener(threading.Thread):
                         blacklist = True
 
                 if whitelist and not blacklist:
+                    
+                    # Add post to history
+                    self.master.config.addHistory(post["id"])
+
                     self.preparePost(post)
-                 
-                # Add post to history
-                self.master.config.addHistory(post["id"])
 
     def preparePost(self, post):
         self.master.log.info(f"VK post: {post['id']}")
