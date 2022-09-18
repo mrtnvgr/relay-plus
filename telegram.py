@@ -48,12 +48,12 @@ class TelegramListener(threading.Thread):
             # Get updates
             updates = self.master.tg.method("getUpdates", updates_payload)
 
+            # Error check
+            if "error_code" in updates:
+                self.master.log.error(f"telegram: getUpdates: {updates['description']}")
+
             # Check if any updates
             if updates != []:
-
-                # Error check
-                if "error_code" in updates:
-                    self.master.log.error(f"telegram: getUpdates: {updates['description']}")
                 
                 # Set updates offset to payload
                 updates_payload["offset"] = updates[-1]["update_id"]+1
