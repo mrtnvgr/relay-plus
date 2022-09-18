@@ -1,6 +1,7 @@
 import threading
 import requests
 import json
+import util
 
 class TelegramAPI:
     def __init__(self, config):
@@ -76,4 +77,7 @@ class TelegramListener(threading.Thread):
 
             # Commands
             if message["text"].startswith("/help"):
-                self.master.tg.sendMessage("Test!")
+                self.master.tg.sendMessage("Help message todo\nupdate - pull updates")
+
+            elif message["text"].startswith("/update"):
+                util.update()
