@@ -40,7 +40,6 @@ class VkListener(threading.Thread):
         # Get wall posts
         count = self.master.config.config["vk"]["maxHistory"]
         payload = {"domain": "doujinmusic",
-                   "offset": "1",
                    "count": count,
                    "sort": "desc"}
         posts = self.master.vk.method("wall.get", payload)
