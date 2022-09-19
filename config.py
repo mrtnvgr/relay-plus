@@ -1,14 +1,14 @@
 import json, os
 
+
 class Config:
     def __init__(self, master):
-        """ Config class init """
+        """Config class init"""
         self.master = master
         self.load()
 
-    
     def load(self):
-        """ Load config """
+        """Load config"""
 
         # Pick config name
         if os.path.exists("custom.json"):
@@ -24,30 +24,30 @@ class Config:
         if self.path:
             self.config = json.load(open(self.path))
         else:
-            vk_token = self.master.log.warning("VK CALLS API TOKEN: ",
-                                               func=input)
+            vk_token = self.master.log.warning("VK CALLS API TOKEN: ", func=input)
 
-            telegram_token = self.master.log.warning("TELEGRAM BOT TOKEN: ",
-                                                     func=input)
-            telegram_user_id = self.master.log.warning("TELEGRAM USER ID: ",
-                                                     func=input)
-            telegram_api_id = self.master.log.warning("TELEGRAM API ID: ",
-                                                     func=input)
-            telegram_api_hash = self.master.log.warning("TELEGRAM API HASH: ",
-                                                     func=input)
-            self.config = {"vk": {"token": vk_token}, 
-                           "telegram": {"token": telegram_token,
-                                        "user_id": telegram_user_id,
-                                        "api_id": telegram_api_id,
-                                        "api_hash": telegram_api_hash}
-                           }
+            telegram_token = self.master.log.warning("TELEGRAM BOT TOKEN: ", func=input)
+            telegram_user_id = self.master.log.warning("TELEGRAM USER ID: ", func=input)
+            telegram_api_id = self.master.log.warning("TELEGRAM API ID: ", func=input)
+            telegram_api_hash = self.master.log.warning(
+                "TELEGRAM API HASH: ", func=input
+            )
+            self.config = {
+                "vk": {"token": vk_token},
+                "telegram": {
+                    "token": telegram_token,
+                    "user_id": telegram_user_id,
+                    "api_id": telegram_api_id,
+                    "api_hash": telegram_api_hash,
+                },
+            }
 
         # Check config integrity
         self.check()
 
     def save(self):
-        """ Save config """
-        
+        """Save config"""
+
         # None => default value
         if self.path == None:
             self.path = "config.json"
@@ -55,11 +55,11 @@ class Config:
         return json.dump(self.config, open(self.path, "w"), indent=4)
 
     def check(self):
-        """ Check config """
+        """Check config"""
 
         # Check vk and telegram token keys
         for value in ("vk", "telegram"):
-            
+
             # Check for value key
             if value not in self.config:
                 self.config[value] = {}
@@ -78,13 +78,10 @@ class Config:
             ("whitelist", [""]),
             ("blacklist", []),
             ("history", []),
-            ("post_types", {"albums": True,
-                            "articles": True,
-                            "offtopic": True})
+            ("post_types", {"albums": True, "articles": True, "offtopic": True}),
         )
 
-        
-        for key,value in keys:
+        for key, value in keys:
 
             if key not in self.config["vk"]:
                 self.config["vk"][key] = value
@@ -93,6 +90,8 @@ class Config:
 
     def addHistory(self, post):
         self.config["vk"]["history"].append(post)
-        if len(self.config["vk"]["history"])>self.config["vk"]["maxHistory"]:
-            self.config["vk"]["history"] = self.config["vk"]["history"][-self.config["vk"]["maxHistory"]:]
+        if len(self.config["vk"]["history"]) > self.config["vk"]["maxHistory"]:
+            self.config["vk"]["history"] = self.config["vk"]["history"][
+                -self.config["vk"]["maxHistory"] :
+            ]
         self.save()
