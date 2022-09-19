@@ -76,7 +76,20 @@ class VkListener(threading.Thread):
                     if tag in post["text"]:
                         blacklist = True
 
-                if whitelist and not blacklist:
+                # Get post type bools
+                types = vk["post_types"]
+
+                albums = (
+                    (whitelist and not blacklist)
+                    and "@doujinmusic" in post["text"]
+                    and types["albums"]
+                )
+
+                articles = "#статьи@doujinmusic" in post["text"] and types["articles"]
+
+                offtopic = "@doujinmusic" not in post["text"] and types["offtopic"]
+
+                if albums or articles or offtopic:
                     # Add post to history
                     self.master.config.addHistory(post["id"])
 

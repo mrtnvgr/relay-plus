@@ -77,7 +77,10 @@ class Config:
             ("maxHistory", 100),
             ("whitelist", [""]),
             ("blacklist", []),
-            ("history", []) 
+            ("history", []),
+            ("post_types", {"albums": True,
+                            "articles": True,
+                            "offtopic": True})
         )
 
         
