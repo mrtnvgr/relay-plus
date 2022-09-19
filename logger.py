@@ -1,5 +1,3 @@
-
-
 class Logger:
     def __init__(self, silent):
         self.silent = silent
@@ -15,4 +13,6 @@ class Logger:
         return func(f"[{self.paint(3, '!')}] {text}", **func_args)
 
     def error(self, text, func=print, func_args={}):
-        return func(f"[{self.paint(1, 'x')}] {self.paint(1, 'error')}: {text}", **func_args)
+        return func(
+            f"[{self.paint(1, 'x')}] {self.paint(1, 'error')}: {text}", **func_args
+        )

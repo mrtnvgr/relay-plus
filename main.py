@@ -6,6 +6,7 @@ import telegram
 import vk
 import logger
 
+
 class Main:
     def __init__(self):
         self.log = logger.Logger(silent=False)
@@ -29,8 +30,10 @@ class Main:
         self.vk_thread.join()
         self.tg_thread.join()
 
+
 def main():
     Main()
+
 
 if __name__ == "__main__":
     main()
