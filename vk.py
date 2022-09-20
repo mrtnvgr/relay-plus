@@ -94,7 +94,6 @@ class VkListener(threading.Thread):
                     self.master.config.addHistory(post["id"])
 
                     self.preparePost(post)
-                    continue
 
     def preparePost(self, post):
         self.master.log.info(f"VK post: {post['id']}")

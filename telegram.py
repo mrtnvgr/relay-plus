@@ -58,7 +58,11 @@ class TelegramListener(threading.Thread):
             if updates != []:
 
                 # Set updates offset to payload
-                updates_payload["offset"] = updates[-1]["update_id"] + 1
+                try:
+                    updates_payload["offset"] = updates[-1]["update_id"] + 1
+                except KeyError:
+                    self.master.tg.sendMessage(str(updates))
+                    continue
 
                 # Iterate through updates
                 for update in updates:
