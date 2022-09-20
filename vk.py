@@ -54,13 +54,12 @@ class VkListener(threading.Thread):
         for post in posts["items"]:
 
             # Check if post id in history
-            history = self.master.config.config["vk"]["history"]
+
+            vk = self.master.config.config["vk"]
+            history = vk["history"]
             if post["id"] not in history:
 
                 # Check post type
-
-                vk = self.master.config.config["vk"]
-
                 whitelist = False
                 whitetags = vk["whitelist"]
 
