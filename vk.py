@@ -42,7 +42,7 @@ class VkListener(threading.Thread):
 
         # Get wall posts
         count = self.master.config.config["vk"]["maxHistory"]
-        payload = {"domain": "doujinmusic", "offset": 1, "count": count, "sort": "desc"}
+        payload = {"domain": "doujinmusic", "offset": 1, "count": count}
         posts = self.master.vk.method("wall.get", payload)
 
         # Check if vk token is right
@@ -96,6 +96,10 @@ class VkListener(threading.Thread):
 
     def preparePost(self, post):
         self.master.log.info(f"VK post: {post['id']}")
+
+        # Add link to the post
+        post_url = f"vk.com/wall{post['from_id']}_{post['id']}"
+        post["text"] += f" <a href='{post_url}'>(link)</a>"
 
         # Parse attachments
         if "attachments" in post:
@@ -159,7 +163,7 @@ class VkListener(threading.Thread):
                         audios = self.master.vk.method("audio.get", payload)
 
                         # Iterate through audios
-                        if "items" in audios:
+                        if type(audios) is not int and "items" in audios:
 
                             media = []
 
