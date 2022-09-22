@@ -10,6 +10,7 @@ class TelegramAPI:
 
     def method(self, method, payload, **kwargs):
         payload["chat_id"] = self.config["user_id"]
+        payload["parse_mode"] = "HTML"
         token = self.config["token"]
         session = requests.Session()
         response = session.get(

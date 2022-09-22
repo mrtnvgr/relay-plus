@@ -126,7 +126,7 @@ class VkListener(threading.Thread):
             for attachment in post["attachments"]:
 
                 # Reset variables
-                payload = {"parse_mode": "HTML"}
+                payload = {}
                 method = "sendMessage"
 
                 # Upload photos
