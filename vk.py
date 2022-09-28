@@ -45,10 +45,17 @@ class VkListener(threading.Thread):
         payload = {"domain": "doujinmusic", "offset": 1, "count": count}
         posts = self.master.vk.method("wall.get", payload)
 
-        # Check if vk token is right
-        if posts == 5:
-            print("Invalid vk token.")
-            exit(1)
+        # Check for errors
+        if type(posts) is int:
+
+            # Check if vk token is right
+            if posts == 5:
+                print("Invalid vk token.")
+                exit(1)
+
+            else:
+                self.master.tg.sendMessage(f"Unknown error: {posts}")
+                return
 
         # Iterate through posts
         for post in posts["items"]:
