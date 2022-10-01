@@ -90,9 +90,12 @@ class TelegramListener(threading.Thread):
 
             # Help command
             if command[0] == "/help":
-                self.master.tg.sendMessage(
-                    "Help message placeholder\nwhitelist/blacklist (add,del/delete,list) - control lists"
-                )
+                message = [
+                    "RelayPlus (github.com/mrtnvgr/relay-plus)",
+                    "whitelist/blacklist - list control",
+                    "update - force self update",
+                ]
+                self.master.tg.sendMessage("\n".join(message))
 
             # Whitelist/Blacklist command
             elif command[0] in ("/whitelist", "/blacklist"):
@@ -108,11 +111,6 @@ class TelegramListener(threading.Thread):
 
                         # Send selected list values
                         self.master.tg.sendMessage(f'{lst_name}: {", ".join(lst)}')
-
-                    elif command[1] == "update":
-
-                        # Update self
-                        util.update()
 
                 elif len(command) == 3:
 
@@ -143,3 +141,8 @@ class TelegramListener(threading.Thread):
                             self.master.tg.sendMessage(
                                 f'Value "{command[2]}" is not in the {lst_name}'
                             )
+
+            elif command[0] == "/update":
+
+                # Update self
+                util.update()
