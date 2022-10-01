@@ -39,7 +39,7 @@ class TelegramAPI:
 
 class TelegramListener(threading.Thread):
     def __init__(self, master):
-        super().__init__(daemon=True)
+        super().__init__()
         self.master = master
 
     def run(self):
@@ -108,6 +108,11 @@ class TelegramListener(threading.Thread):
 
                         # Send selected list values
                         self.master.tg.sendMessage(f'{lst_name}: {", ".join(lst)}')
+
+                    elif command[1] == "update":
+
+                        # Update self
+                        util.update()
 
                 elif len(command) == 3:
 

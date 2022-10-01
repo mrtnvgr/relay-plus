@@ -28,7 +28,7 @@ class Vk:
 
 class VkListener(threading.Thread):
     def __init__(self, master):
-        super().__init__(daemon=True)
+        super().__init__()
         self.master = master
 
     def run(self):
