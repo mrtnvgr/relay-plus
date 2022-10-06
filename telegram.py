@@ -45,7 +45,8 @@ class TelegramListener(threading.Thread):
     def run(self):
         """TelegramListener thread main loop"""
 
-        updates_payload = {"timeout": 60000}
+        offset = self.master.config.config["telegram"].get("update_id", 0)
+        updates_payload = {"timeout": 60000, "offset": offset}
         while True:
 
             # Get updates
@@ -60,7 +61,13 @@ class TelegramListener(threading.Thread):
 
                 # Set updates offset to payload
                 try:
-                    updates_payload["offset"] = updates[-1]["update_id"] + 1
+                    update_id = int(updates[-1]["update_id"]) + 1
+
+                    # Save current update_id
+                    self.master.config.config["telegram"]["update_id"] = update_id
+                    self.master.config.save()
+
+                    updates_payload["offset"] = update_id
                 except KeyError:
                     self.master.tg.sendMessage(str(updates))
                     continue
