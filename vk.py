@@ -53,6 +53,10 @@ class VkListener(threading.Thread):
                 print("Invalid vk token.")
                 exit(1)
 
+            # Skip unknown internal server errors
+            elif posts == 10:
+                return
+
             else:
                 self.master.tg.sendMessage(f"Unknown error: {posts}")
                 return
