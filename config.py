@@ -79,6 +79,7 @@ class Config:
             ("blacklist", []),
             ("history", []),
             ("post_types", {"albums": True, "articles": True, "offtopic": True}),
+            ("all_donuts", True),
         )
 
         for key, value in keys:

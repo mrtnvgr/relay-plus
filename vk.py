@@ -99,7 +99,13 @@ class VkListener(threading.Thread):
 
                 offtopic = "@doujinmusic" not in post["text"] and types["offtopic"]
 
-                if albums or articles or offtopic:
+                donut = post["donut"]["is_donut"] and vk["all_donuts"]
+
+                if donut:
+
+                    post["text"] = "VK DONUT POST\n" + post["text"]
+
+                if albums or articles or offtopic or donut:
                     # Add post to history
                     self.master.config.addHistory(post["id"])
 
