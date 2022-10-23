@@ -63,14 +63,17 @@ class TelegramListener(threading.Thread):
                 try:
                     update_id = int(updates[-1]["update_id"]) + 1
 
-                    # Save current update_id
-                    self.master.config.config["telegram"]["update_id"] = update_id
-                    self.master.config.save()
-
-                    updates_payload["offset"] = update_id
                 except KeyError:
-                    self.master.tg.sendMessage(str(updates))
+                    
+                    if updates["error_code"] != 504:
+                        self.master.tg.sendMessage(str(updates))
                     continue
+
+                # Save current update_id
+                self.master.config.config["telegram"]["update_id"] = update_id
+                self.master.config.save()
+
+                updates_payload["offset"] = update_id
 
                 # Iterate through updates
                 for update in updates:
