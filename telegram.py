@@ -65,8 +65,9 @@ class TelegramListener(threading.Thread):
 
                 except KeyError:
                     
-                    if updates["error_code"] != 504:
-                        self.master.tg.sendMessage(str(updates))
+                    # Get rid of annoying bad gateway errors
+                    if updates["error_code"] != 502:
+                        self.master.tg.sendMessage(f"{updates['error_code']}: {updates['description']}")
                     continue
 
                 # Save current update_id
