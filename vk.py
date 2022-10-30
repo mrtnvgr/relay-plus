@@ -30,6 +30,11 @@ class VkListener(threading.Thread):
     def __init__(self, master):
         super().__init__()
         self.master = master
+        
+        # Get group info
+        self.domain = "doujinmusic"
+        group_info = self.master.vk.method("groups.getById", {"group_id": self.domain})[0]
+        self.domain_id = f'-{group_info["id"]}'
 
     def run(self):
         """VkListener thread main loop"""
@@ -40,10 +45,31 @@ class VkListener(threading.Thread):
     def checkPosts(self):
         """Vk new post checker"""
 
+        vk = self.master.config.config["vk"]
+
         # Get wall posts
-        count = self.master.config.config["vk"]["maxHistory"]
-        payload = {"domain": "doujinmusic", "offset": 1, "count": count}
+        count = vk["maxHistory"]
+        payload = {"domain": self.domain, "offset": 1, "count": count}
         posts = self.master.vk.method("wall.get", payload)
+
+        if vk["post_types"]["donut"]:
+
+            # Check if user has donut access
+            payload = {"owner_id": self.domain_id}
+            isDon = self.master.vk.method("donut.isDon", payload)
+            
+            if isDon == 1:
+            
+                # Get donut posts
+
+                payload = {"domain": self.domain, "offset": 1, "count": count, "filter": "donut"}
+                donut_posts = self.master.vk.method("wall.get", payload)["items"]
+
+                # Append posts
+                posts.update(donut_posts)
+
+                # Sort and strip posts
+                posts = sorted(posts, key=lambda dictionary: dictionary['id'])[:count]
 
         # Check for errors
         if type(posts) is int:
@@ -66,7 +92,6 @@ class VkListener(threading.Thread):
 
             # Check if post id in history
 
-            vk = self.master.config.config["vk"]
             history = vk["history"]
             if post["id"] not in history:
 
@@ -99,7 +124,7 @@ class VkListener(threading.Thread):
 
                 offtopic = "@doujinmusic" not in post["text"] and types["offtopic"]
 
-                donut = post["donut"]["is_donut"] and vk["all_donuts"]
+                donut = types["donut"]
 
                 if donut:
 
