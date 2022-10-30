@@ -89,9 +89,7 @@ class Config:
         self.save()
 
     def addHistory(self, post):
+        count = self.config["vk"]["maxHistory"]
         self.config["vk"]["history"].append(post)
-        if len(self.config["vk"]["history"]) > self.config["vk"]["maxHistory"]:
-            self.config["vk"]["history"] = self.config["vk"]["history"][
-                -self.config["vk"]["maxHistory"] :
-            ]
+        self.config["vk"]["history"] = self.config["vk"]["history"][:count]
         self.save()

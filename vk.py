@@ -52,25 +52,6 @@ class VkListener(threading.Thread):
         payload = {"domain": self.domain, "offset": 1, "count": count}
         posts = self.master.vk.method("wall.get", payload)
 
-        if vk["post_types"]["donut"]:
-
-            # Check if user has donut access
-            payload = {"owner_id": self.domain_id}
-            isDon = self.master.vk.method("donut.isDon", payload)
-            
-            if isDon == 1:
-            
-                # Get donut posts
-
-                payload = {"domain": self.domain, "offset": 1, "count": count, "filter": "donut"}
-                donut_posts = self.master.vk.method("wall.get", payload)["items"]
-
-                # Append posts
-                posts.update(donut_posts)
-
-                # Sort and strip posts
-                posts = sorted(posts, key=lambda dictionary: dictionary['id'])[:count]
-
         # Check for errors
         if type(posts) is int:
 
@@ -87,8 +68,26 @@ class VkListener(threading.Thread):
                 self.master.tg.sendMessage(f"Unknown error: {posts}")
                 return
 
+        if vk["post_types"]["donut"]:
+
+            # Check if user has donut access
+            payload = {"owner_id": self.domain_id}
+            isDon = self.master.vk.method("donut.isDon", payload)
+            
+            if isDon == 1:
+                # Get donut posts
+
+                payload = {"domain": self.domain, "offset": 1, "count": count, "filter": "donut"}
+                donut_posts = self.master.vk.method("wall.get", payload)
+
+                # Merge lists
+                posts = posts["items"] + donut_posts["items"]
+
+                # Sort and strip posts
+                posts = sorted(posts, key=lambda d: d['id'], reverse=True)[:count]
+
         # Iterate through posts
-        for post in posts["items"]:
+        for post in posts:
 
             # Check if post id in history
 
@@ -124,21 +123,21 @@ class VkListener(threading.Thread):
 
                 offtopic = "@doujinmusic" not in post["text"] and types["offtopic"]
 
-                donut = types["donut"]
+                donut = post["donut"]["is_donut"] and types["donut"]
 
                 if donut:
 
-                    post["text"] = "VK DONUT POST\n" + post["text"]
+                    post["text"] = "<b>VK DONUT POST</b>\n" + post["text"]
 
                 if albums or articles or offtopic or donut:
                     # Add post to history
                     self.master.config.addHistory(post["id"])
 
+                    self.master.log.info(f"VK post: {post['id']}")
+
                     self.preparePost(post)
 
     def preparePost(self, post):
-        self.master.log.info(f"VK post: {post['id']}")
-
         # Add link to the post
         post_url = f"vk.com/wall{post['from_id']}_{post['id']}"
         post["text"] += f" <a href='{post_url}'>(link)</a>"
@@ -190,53 +189,54 @@ class VkListener(threading.Thread):
                     link = attachment["link"]
 
                     # Check if link is playlist
-                    if link["description"] == "Плейлист":
+                    if "description" in link:
+                        if link["description"] == "Плейлист":
 
-                        # Parse playlist url
-                        playlist_url = link["url"].split("_")
-                        owner_id = playlist_url[1].split("playlist")[1]
-                        album_id = playlist_url[2].split("&")[0]
+                            # Parse playlist url
+                            playlist_url = link["url"].split("_")
+                            owner_id = playlist_url[1].split("playlist")[1]
+                            album_id = playlist_url[2].split("&")[0]
 
-                        payload = {
-                            "owner_id": owner_id,
-                            "album_id": album_id,
-                        }
-                        # Get audios from playlist
-                        audios = self.master.vk.method("audio.get", payload)
+                            payload = {
+                                "owner_id": owner_id,
+                                "album_id": album_id,
+                            }
+                            # Get audios from playlist
+                            audios = self.master.vk.method("audio.get", payload)
 
-                        # Iterate through audios
-                        if type(audios) is not int and "items" in audios:
+                            # Iterate through audios
+                            if type(audios) is not int and "items" in audios:
 
-                            media = []
+                                media = []
 
-                            for audio in audios["items"]:
+                                for audio in audios["items"]:
 
-                                # Add audio to list
-                                # FIXME: If audio is url -> performer, title, thumb tags does not work
-                                media.append(
-                                    {
-                                        "type": "audio",
-                                        "media": audio["url"],
-                                        "duration": audio["duration"],
-                                        "performer": audio["artist"],
-                                        "title": audio["title"],
-                                        "caption": f"{audio['artist']} \u2014 {audio['title']}",  # NOTE: Until fix
-                                    }
-                                )
+                                    # Add audio to list
+                                    # FIXME: If audio is url -> performer, title, thumb tags does not work
+                                    media.append(
+                                        {
+                                            "type": "audio",
+                                            "media": audio["url"],
+                                            "duration": audio["duration"],
+                                            "performer": audio["artist"],
+                                            "title": audio["title"],
+                                            "caption": f"{audio['artist']} \u2014 {audio['title']}",  # NOTE: Until fix
+                                        }
+                                    )
 
-                                self.master.log.info(
-                                    f"         Music: {audio['title']}"
-                                )
+                                    self.master.log.info(
+                                        f"         Music: {audio['title']}"
+                                    )
 
-                                # Send media group and clear media list
-                                if len(media) == 10:
-                                    self.master.tg.sendMediaGroup(media)
-                                    media.clear()
+                                    # Send media group and clear media list
+                                    if len(media) == 10:
+                                        self.master.tg.sendMediaGroup(media)
+                                        media.clear()
 
-                            # Send media group
-                            self.master.tg.sendMediaGroup(media)
+                                # Send media group
+                                self.master.tg.sendMediaGroup(media)
 
-                        continue
+                            continue
 
                 else:
                     print(attachment["type"])
