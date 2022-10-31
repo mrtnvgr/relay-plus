@@ -30,10 +30,12 @@ class VkListener(threading.Thread):
     def __init__(self, master):
         super().__init__()
         self.master = master
-        
+
         # Get group info
         self.domain = "doujinmusic"
-        group_info = self.master.vk.method("groups.getById", {"group_id": self.domain})[0]
+        group_info = self.master.vk.method("groups.getById", {"group_id": self.domain})[
+            0
+        ]
         self.domain_id = f'-{group_info["id"]}'
 
     def run(self):
@@ -68,23 +70,30 @@ class VkListener(threading.Thread):
                 self.master.tg.sendMessage(f"Unknown error: {posts}")
                 return
 
+        posts = posts["items"]
+
         if vk["post_types"]["donut"]:
 
             # Check if user has donut access
             payload = {"owner_id": self.domain_id}
             isDon = self.master.vk.method("donut.isDon", payload)
-            
+
             if isDon == 1:
                 # Get donut posts
 
-                payload = {"domain": self.domain, "offset": 1, "count": count, "filter": "donut"}
+                payload = {
+                    "domain": self.domain,
+                    "offset": 1,
+                    "count": count,
+                    "filter": "donut",
+                }
                 donut_posts = self.master.vk.method("wall.get", payload)
 
                 # Merge lists
-                posts = posts["items"] + donut_posts["items"]
+                posts = posts + donut_posts["items"]
 
                 # Sort and strip posts
-                posts = sorted(posts, key=lambda d: d['id'], reverse=True)[:count]
+                posts = sorted(posts, key=lambda d: d["id"], reverse=True)[:count]
 
         # Iterate through posts
         for post in posts:
@@ -213,6 +222,7 @@ class VkListener(threading.Thread):
 
                                     # Add audio to list
                                     # FIXME: If audio is url -> performer, title, thumb tags does not work
+                                    # NOTE: This is a telegram issue, impossible to fix.
                                     media.append(
                                         {
                                             "type": "audio",
@@ -220,7 +230,7 @@ class VkListener(threading.Thread):
                                             "duration": audio["duration"],
                                             "performer": audio["artist"],
                                             "title": audio["title"],
-                                            "caption": f"{audio['artist']} \u2014 {audio['title']}",  # NOTE: Until fix
+                                            "caption": f"{audio['artist']} \u2014 {audio['title']}",
                                         }
                                     )
 
