@@ -50,7 +50,10 @@ class TelegramListener(threading.Thread):
         while True:
 
             # Get updates
-            updates = self.master.tg.method("getUpdates", updates_payload)
+            try:
+                updates = self.master.tg.method("getUpdates", updates_payload)
+            except requests.exceptions.ConnectionError:
+                continue
 
             # Error check
             if "error_code" in updates:
