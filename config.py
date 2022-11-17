@@ -93,6 +93,6 @@ class Config:
 
     def addHistory(self, post):
         count = self.config["vk"]["maxHistory"]
-        self.config["vk"]["history"].insert(post)
+        self.config["vk"]["history"].insert(0, post)
         self.config["vk"]["history"] = self.config["vk"]["history"][:count+1]
         self.save()
